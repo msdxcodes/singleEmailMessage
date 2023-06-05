@@ -1,0 +1,150 @@
+<!-- @Description: Select Object | Show Related Object |
+                   Create Bulk Tasks and those task related to selected Records
+@Author : Mohanasundhra M
+@Creatred Date: 14th Apr 2023
+@version 1.0      LastModifyBy : Aakash Chakole      last version :2.0 -->
+<template>
+<div class="slds-m-horizontal_medium">
+<lightning-card  variant="Narrow"  title={ObjectApiName} icon-name={icon}>
+<template if:true={ObjectName}>
+      <div class="slds-m-around_small slds-p-around_x-small">
+         <lightning-input type="search" label="" variant = "label-hidden" placeholder="Search..." onchange={handleSearchTermChange}></lightning-input>
+      </div>
+</template>
+    <lightning-button-group  slot="actions">
+            <!-- <lightning-button label="Refresh"></lightning-button> -->
+            <lightning-button variant="neutral" onclick={changeObj} label={isObjselected}></lightning-button>
+            <lightning-button label="Create Multi Tasks" variant="neutral" onclick={createMultiTask}></lightning-button>
+        </lightning-button-group>
+        <template if:false={ObjectName}>
+                  <img class="selectobjs"  onclick={changeObj} style="margin-left: auto;margin-right:auto;width: 30%;display: block;" src="https://wissen25-dev-ed--mta14.develop.vf.force.com/resource/1683798144000/MTA14__selectObj?">
+        </template>
+
+<template if:true={selectObj}>
+<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open ">
+<div class="slds-modal__container">
+
+<!-- <lightning-icon class="slds-button  slds-modal__close slds-button_icon-inverse"  onclick={closeselecetFieldsPopup} size="small" icon-name="utility:close" alternative-text="close"></lightning-icon> -->
+
+<!-- <div class="slds-modal__header"> -->
+  <header class="slds-modal__header header">
+     <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={cancel}>
+                <lightning-icon icon-name="utility:close"
+                   alternative-text="close"
+                   variant="inverse"
+                   size="small" ></lightning-icon>
+                <span class="slds-assistive-text">Close</span>
+             </button>
+<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Select Objects</h1>
+  </header>
+<!-- </div> -->
+<div class="slds-modal__content slds-p-horizontal_medium" id="modal-content-id-1">
+   
+<div class=" slds-m-around_small slds-p-around_x-small ">
+   
+        <lightning-combobox
+            name="Objs"
+            label="Available Objects"
+            value={ObjectApiName}
+            placeholder="Select Progress"
+            options={options}
+            onchange={handleChangeobj} required></lightning-combobox>
+ 
+</div> 
+</div>
+<div class="slds-modal__footer">
+<button class="slds-button slds-button_neutral " onclick={cancel}>Cancel</button>
+<button class="slds-button slds-button_neutral " onclick={ondone}>Done</button>
+</div>
+</div>
+</section>
+</template>
+<template if:true={selectFieldsPopup}>
+<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open">
+<div class="slds-modal__container">
+
+<lightning-icon class="slds-button  slds-modal__close slds-button_icon-inverse"  onclick={closesfillInfoPopup} size="small" icon-name="utility:close" alternative-text="close"></lightning-icon>
+
+<div class="slds-modal__header">
+<h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate">Create Multi Tasks</h1>
+</div>
+<div class="slds-modal__content slds-p-horizontal_medium" id="modal-content-id-2">
+  <div class="slds-text-align_center">  </div>
+  
+<div class=" slds-grid slds-wrap slds-m-around_small slds-p-around_x-small">
+    
+      
+
+  <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small" >
+   <span>
+    <lightning-input type="text" variant="standard" value={subjectValue} label="Subject" placeholder="Enter Subject..."  onchange={handlechangeSubject} required ></lightning-input>
+    </span> 
+  </div>
+
+  <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small" >
+   <span>
+    <lightning-combobox
+            name="progress"
+            label="Priority"
+            value={priorityvalue}
+            placeholder="Select Priority"
+            options={priorityPicklistValue}
+            onchange={handleChangepriority}
+            required >
+    </lightning-combobox>
+   </span> 
+  </div>
+  <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small" >
+   <span>
+    <lightning-input class="DateField"  type="Date" label="Due Date" placeholder="Select Due Date" onchange={handlechangeDuedate} required ></lightning-input>
+    </span> 
+  </div>
+
+  <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small" >
+   <span>
+<lightning-combobox
+            name="progress"
+            label="Status"
+            value={statusValue}
+            placeholder="Select Status"
+            options={statusPicklistValue}
+            onchange={handleChangestatus} required disabled >
+    </lightning-combobox>    </span> 
+  </div>
+  <div class="slds-col slds-size_1-of-1 slds-p-horizontal_small" >
+   <span>
+ <c-custom-look-up icon-name="standard:user"
+            s-object-api-name="user"
+            label="Assigned To"
+            onlookupupdate={lookupRecord}
+            placeholder="Search peoples here..."></c-custom-look-up>
+   </span> 
+  </div>
+</div>    
+</div>
+<div class="slds-modal__footer">
+<button onclick={closesfillInfoPopup}  class="slds-button slds-button_neutral" aria-label="Cancel and close">Cancel</button>
+<button class="slds-button slds-button_brand " onclick={handlesave}>Save</button>
+</div>
+</div>
+</section>
+
+</template>
+<template if:true={ObjectName}>
+
+     <div class="slds-m-around_medium ">
+    
+    <lightning-datatable
+        key-field="id"
+        data={dataList}
+        columns={columnsList}>
+            </lightning-datatable>
+        <template if:true={noRecords}>
+        <img style="margin-left: auto;margin-right:auto;width: 35%;display: block;" src="https://wissen25-dev-ed--mta14.develop.vf.force.com/resource/1683868647000/MTA14__norecordsfound">
+      </template>
+</div>
+</template>
+</lightning-card>   
+</div>
+
+</template>

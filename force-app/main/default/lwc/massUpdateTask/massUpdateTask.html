@@ -1,0 +1,199 @@
+<!--
+  @Description :All the Task Will Show in the Page , You Should the records which you want to modify then Select Fields 
+  @Author :   Mohanasundhra M
+  @Last Modified By : Aakash Chakole
+  @Last Modified On: 22/05/2023
+  @Modification Log:
+  Ver    Date            Author           LastModification
+  1.0   02/04/2023     Mohanasundhra M     Initial Version 
+-->
+<template>
+  <div class="container">
+    <div class="slds-m-around_x-small">
+      <lightning-layout multiple-rows>
+        <lightning-layout-item size="8" padding="around-small"  >
+          <div class="searchbar"> 
+            <lightning-input type="search" label="" variant = "label-hidden" placeholder="Search by Task no, Subject, Status & Priority" onchange={handleSearchTermChange} value={searchTerm}></lightning-input>
+          </div>
+        </lightning-layout-item>
+        
+        <lightning-layout-item size="4" padding="around-small">
+          <div class="custom-box slds-text-align_right">
+            <lightning-button-group class="icons">
+            
+            <lightning-button variant="neutral" label="Select Fields" title="selectFields" onclick={onselectfields}></lightning-button>
+            <template if:true={dataFiltered}>
+            <lightning-button variant="neutral" label="Clear Filter" title="clearfilter" onclick={clearfilter}></lightning-button>
+           </template>
+          </lightning-button-group>
+          </div>
+        </lightning-layout-item>
+      </lightning-layout>
+    </div>
+    <template if:true={tasks}>
+      
+      <lightning-datatable
+        key-field="Id"
+        data={tasks}  
+        columns={COLUMNS}
+        onheaderaction={handleHeaderAction}
+        onrowaction={handleRowAction}
+      ></lightning-datatable>
+      <template if:true={notFound}>
+        <img style="margin-left: auto;margin-right:auto;width: 35%;display: block;" src="https://wissen25-dev-ed--mta14.develop.vf.force.com/resource/1683798066000/MTA14__tasknotfound">
+      </template>
+     
+    </template>
+
+
+
+
+    <template if:true={error}>
+      <div class="slds-m-around_medium">{error}</div>
+    </template>
+    <template if:true={selectFieldsPopup}>
+      <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open ">
+<div class="slds-modal__container">
+
+<lightning-icon class="slds-button  slds-modal__close slds-button_icon-inverse"  onclick={closeselecetFieldsPopup} size="small" icon-name="utility:close" alternative-text="close"></lightning-icon>
+
+<div class="slds-modal__header">
+<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Select Fields to Update the Value</h1>
+</div>
+<div class="slds-modal__content slds-p-horizontal_medium" id="modal-content-id-1">
+  <div class="slds-text-align_center"> You Have Selected <b>{selectedRecsCount}</b> Record. </div>
+   
+<div class="slds-grid slds-wrap slds-m-around_small slds-p-around_x-small slds-box">
+  <div class="slds-col slds-size_6-of-12  fieldbox">
+    <span>
+       <div class="ftitle">Available Fields</div>
+      <!-- <template for:each={fields} for:item="field">
+        <div key={field.value} >
+         <lightning-input  class="slds-p-left_xx-large fields" type="checkbox" label={field.label} value={field.value} onchange={handlecbChange}>
+         </lightning-input>
+        </div>
+      </template> -->
+      <lightning-checkbox-group 
+        name="Checkbox Group"
+        label=""
+        options={options}
+        value={value}
+        onchange={handleChange}>
+      </lightning-checkbox-group>
+    </span>
+  </div>
+  
+  <div class="slds-col slds-size_6-of-12 ">
+    <span>
+       <div class="ftitle">Selected Fields({selectValuecount})</div>
+    <template for:each={selectLabels} for:item="selectLabel">
+<div key={selectLabel} class="slds-badge  slds-m-around_x-small">
+{selectLabel}
+</div>
+    </template>
+  </span>
+  </div>
+</div>
+   
+    
+  
+</div>
+<div class="slds-modal__footer">
+<button onclick={closeselecetFieldsPopup}  class="Btn CBtn slds-button_neutral" aria-label="Cancel and close">Cancel</button>
+&nbsp; &nbsp;
+<button class="Btn slds-button_brand " onclick={onnext}>Next</button>
+</div>
+</div>
+</section>
+<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+    <template if:true={fillInfoPopup}>
+      <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open">
+<div class="slds-modal__container">
+
+<lightning-icon class="slds-button  slds-modal__close slds-button_icon-inverse"  onclick={closesfillInfoPopup} size="small" icon-name="utility:close" alternative-text="close"></lightning-icon>
+
+<div class="slds-modal__header">
+<h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate">Fill the Information</h1>
+</div>
+<div class="slds-modal__content slds-p-horizontal_medium" id="modal-content-id-2">
+  <div class="slds-text-align_center">  </div>
+  
+<div class=" slds-grid slds-wrap slds-m-around_small slds-p-around_x-small">
+    
+      
+<template if:true={containSubject}>
+  <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small" >
+   <span>
+    <lightning-input type="text" variant="standard" value={subjectValue} label="Subject" placeholder="Enter Subject..."  onchange={handlechangeSubject}></lightning-input>
+    </span> 
+  </div>
+</template>
+
+<template if:true={containPriority}>
+  <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small" >
+   <span>
+    <lightning-combobox
+            name="progress"
+            label="Priority"
+            value={priorityvalue}
+            placeholder="Select Priority"
+            options={priorityPicklistValue}
+            onchange={handleChangepriority}>
+    </lightning-combobox>
+   </span> 
+  </div>
+</template>
+<template if:true={containActivityDate}>
+  <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small" >
+   <span>
+    <lightning-input  type="Date" class="DateField" label="Due Date" placeholder="Select Due Date" onchange={handlechangeDuedate} ></lightning-input>
+    </span> 
+  </div>
+</template>
+<template if:true={containStatus}>
+  <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small" >
+   <span>
+<lightning-combobox
+            name="progress"
+            label="Status"
+            value={statusValue}
+            placeholder="Select Status"
+            options={statusPicklistValue}
+            onchange={handleChangestatus} >
+    </lightning-combobox>    </span> 
+  </div>
+</template>
+<template if:true={containAssignedTo}>
+  <div class="slds-col slds-size_1-of-1 slds-p-horizontal_small" >
+   <span>
+      <c-custom-look-up icon-name="standard:user"
+            s-object-api-name="user"
+            label="Assigned To"
+            onlookupupdate={lookupRecord}
+            placeholder="Search peoples here..."></c-custom-look-up>
+            <br> <br><br>
+   <!-- <lightning-input type="text" variant="standard" value={assignedTovalue} label="Assigned To" placeholder="Assigned to"  onchange={handlechangeAssignedto}></lightning-input>-->
+    </span> 
+  </div>
+</template>
+        
+
+  
+</div>
+
+   
+    
+  
+</div>
+<div class="slds-modal__footer">
+<button onclick={closesfillInfoPopup}  class="Btn CBtn slds-button_neutral" aria-label="Cancel and close">Cancel</button>&nbsp; &nbsp; 
+<button onclick={backtoselectFieldsPopup}  class="Btn CBtn  slds-button_neutral " aria-label="Cancel and close">Back</button>&nbsp; &nbsp; 
+<button class="Btn slds-button_brand " onclick={handleupdate}>Update</button>
+</div>
+</div>
+</section>
+<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+  </div>
+</template>

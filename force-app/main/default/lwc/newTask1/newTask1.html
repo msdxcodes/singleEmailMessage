@@ -1,0 +1,125 @@
+<!-- @Description: New Task Page | Show All tasks With Refresh | Create New Task
+@Author : Jagadeeswar Reddy
+@Creatred Date: 4th Apr 2023
+@version 1.0      LastModifyBy : Aakash Chakole      last version :2.0 -->
+
+<template>
+    <lightning-card title="Tasks"  icon-name="standard:task">
+    <lightning-button-group slot="actions">
+          <lightning-button label="Refresh" title="Refresh" onclick={refershtask}></lightning-button>
+          <lightning-button  label="New Task" title="New Task" onclick={showModalBox}></lightning-button>
+          <template if:true={dataFiltered}>
+          <lightning-button  label="Clear Filter" title="Clear Filter" onclick={clearfilter}></lightning-button>
+          </template>
+         </lightning-button-group> 
+<div class="slds-m-vertical_small">
+
+            <lightning-input type="search" label="" variant = "label-hidden" placeholder="Search by Task no, Subject, Status & Priority" onchange={handleSearchTermChange} value={searchTerm}></lightning-input>   
+        </div>
+      
+         <lightning-datatable
+            data={tasks}
+            columns={COLUMNS}
+            onheaderaction={handleHeaderAction}
+            onrowaction={handleRowAction}
+            key-field="Id">
+        </lightning-datatable>
+       
+        <template if:true={shownewcreategif}>
+                   <img class="" style="margin-left: auto;margin-right:auto;width: 30%;display: block;" src="https://wissen25-dev-ed--mta14.develop.vf.force.com/resource/1683798066000/MTA14__tasknotfound">
+        </template>
+    </lightning-card>
+   
+
+   <!-- modal start -->      
+   <template if:true={isShowModal}>
+
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+       <div class="slds-modal__container">
+        <!-- modal header start -->
+          <header class="slds-modal__header header">
+             <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={hideModalBox}>
+                <lightning-icon icon-name="utility:close"
+                   alternative-text="close"
+                   variant="inverse"
+                   size="small" ></lightning-icon>
+                <span class="slds-assistive-text">Close</span>
+             </button>
+             <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Task</h2>
+          </header>
+      
+          <!-- modal body start -->
+          <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+               
+             <div class="slds-p-around_medium"> 
+        <div class="slds-grid slds-wrap">
+             <div class="slds-col slds-size_6-of-12 slds-p-horizontal_small">
+            <span>       
+                <lightning-input label="Subject" value={subject} onchange={handleTaskSubjectChange} required ></lightning-input>
+            </span>
+             </div>
+            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_small">
+             <span>
+             <lightning-combobox label="Priority" value={priority} options={priorityList} onchange={handlePriorityChange} required ></lightning-combobox> 
+             </span>
+            </div>
+            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_small">
+            <span>       
+            <lightning-combobox label="Status" value={status} options={statusList} onchange={handleStatusChange} required disabled ></lightning-combobox>
+            </span>
+             </div>
+            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_small">
+             <span>
+            <lightning-input type="date" class="DateField" label="Due Date" value={dueDate}  onchange={handleDueDateChange} required ></lightning-input>
+             </span>
+            </div>
+            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_small">
+            <span>       
+            <lightning-combobox label="Name" value={selectedContactId} options={contactOptions} onchange={handleContactChange}></lightning-combobox>
+            </span>
+             </div>
+            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_small">
+             <span>
+            <lightning-combobox label="Related To" value={selectedAccountId} options={accountOptions} onchange={handleRelatedToChange}></lightning-combobox>
+             </span>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-p-horizontal_small">
+             <span>
+            <lightning-input label="Comments" value={taskDescription} onchange={handleTaskDescriptionChange}></lightning-input>
+             </span>
+            </div>
+             <div class="slds-col slds-size_1-of-1 slds-p-horizontal_small" >
+   <span>
+      <c-custom-look-up icon-name="standard:user"
+            s-object-api-name="user"
+            label="Assigned To"
+            onlookupupdate={lookupRecord} 
+            placeholder="Search peoples here..."   required ></c-custom-look-up>
+            <br> <br><br>
+    </span>
+                </div>
+        </div>
+            
+        </div>
+    
+          </div>
+
+          <!-- modal footer start-->
+          <footer class="slds-modal__footer header">
+             <!-- <button  class="cancelBtn" onclick={hideModalBox}>Cancel</button>
+            <button  class="SaveNewBtn"    onclick={savenew}>Save & New</button>
+             <button class="SaveBtn"  onclick={save2}>Save</button> -->
+               <lightning-button-group>
+            <lightning-button label="Cancel" onclick={hideModalBox}></lightning-button>
+            <lightning-button label="Save & New"  onclick={savenew}></lightning-button>
+            <lightning-button label="Save" onclick={save2}></lightning-button>
+        </lightning-button-group>
+          </footer>
+       
+       </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+ </template>
+ <!-- modal end -->
+
+</template>

@@ -1,0 +1,12 @@
+.element {
+  animation: fadeIn 0s;
+ 
+}
+.tabset1{
+      --sds-c-icon-color-foreground-default: rgb(22, 49, 197);
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
